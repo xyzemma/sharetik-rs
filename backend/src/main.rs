@@ -13,7 +13,6 @@ pub struct Params {
 async fn ttconv(req: HttpRequest) -> HttpResponse {
     let client: Client = reqwest::Client::new();
     let params = web::Query::<Params>::from_query(req.query_string()).unwrap();
-    println!("{}",params.url);
     let res = match client
         .get(params.url.clone())
         .header(USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.7103.48 Safari/537.36")
@@ -22,8 +21,20 @@ async fn ttconv(req: HttpRequest) -> HttpResponse {
             Ok(res) => res,
             Err(err) => panic!("Error: {}", err)
         };
-    let respath = res.url().path();
-    HttpResponse::Ok().body(format!("{:?}", respath))
+    let mut respath = String::from(res.url().path());
+    let mut slashindex = respath.len() - 1;
+    if respath.chars().nth(slashindex) == Some('/') {
+        respath.remove(slashindex);
+    }
+    for i in respath.chars().rev() {
+        if i == '/' {
+            break;
+        }
+        slashindex -= 1;
+    }
+    respath.replace_range((0..slashindex+1),"");
+    let mut returnurl = String::from(format!("https://tiktok.com/player/v1/{}",respath));
+    HttpResponse::Ok().body(format!("{:?}", returnurl))
 }
 
 #[actix_web::main]
