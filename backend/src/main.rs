@@ -33,7 +33,7 @@ async fn ttconv(req: HttpRequest) -> HttpResponse {
         slashindex -= 1;
     }
     respath.replace_range((0..slashindex+1),"");
-    let mut returnurl = String::from(format!("https://tiktok.com/player/v1/{}",respath));
+    let returnurl = String::from(format!("https://tiktok.com/player/v1/{}",respath));
     HttpResponse::Ok().body(format!("{:?}", returnurl))
 }
 
